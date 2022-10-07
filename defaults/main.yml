@@ -27,7 +27,7 @@ app_embystat_enabled: false
 app_emulatorjs_enabled: false
 app_foldingathome_enabled: false
 app_freshrss_enabled: false
-app_grafan_enabled: false
+app_grafana_enabled: false
 app_grocy_enabled: false
 app_headphones_enabled: false
 app_healthchecks_enabled: false

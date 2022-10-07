@@ -31,7 +31,7 @@
     or
     app_freshrss_enabled|bool
     or
-    app_grafan_enabled|bool
+    app_grafana_enabled|bool
     or
     app_grocy_enabled|bool
     or
