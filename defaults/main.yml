@@ -1,6 +1,6 @@
 ---
-docker_swag_puid: '16704'
-docker_swag_pgid: '16704'
+docker_swag_puid: "docker_files"
+docker_swag_pgid: "docker_files"
 docker_swag_tz: "Europe/Zurich"
 docker_swag_dir: "/opt/docker-swag"
 docker_swag_htpasswd: ""
@@ -10,7 +10,7 @@ docker_swag_validation: "dns"
 docker_swag_dnsplugin: "cloudflare"
 docker_swag_only_subdomains: true
 docker_swag_extra_domains: ""
-docker_swag_force: "yes"
+docker_swag_force: "no"
 
 app_archisteamfarm_enabled: false
 app_bazarr_enabled: false
