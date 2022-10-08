@@ -3,13 +3,25 @@
   community.docker.docker_network:
     name: app-network
 
-- name: Create directory
+- name: Create directorys
   ansible.builtin.file:
-    path: "{{docker_swag_dir}}/config/nginx/proxy-confs"
+    path: "{{ item }}"
     state: directory
     owner: "{{docker_swag_puid}}"
     group: "{{docker_swag_pgid}}"
     mode: 0755
+  with_items:
+    - {{docker_swag_dir}}
+    - {{docker_swag_dir}}/config
+    - {{docker_swag_dir}}/crontabs
+    - {{docker_swag_dir}}/dns-conf
+    - {{docker_swag_dir}}/etc
+    - {{docker_swag_dir}}/fail2ban
+    - {{docker_swag_dir}}/keys
+    - {{docker_swag_dir}}/log
+    - {{docker_swag_dir}}/config/nginx
+    - {{docker_swag_dir}}/config/nginx/proxy-confs
+    - {{docker_swag_dir}}/config/www
 
 - name: Copy files
   ansible.builtin.copy:
