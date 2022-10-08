@@ -8,6 +8,7 @@ docker_swag_url: ""
 docker_swag_subdomains: "wildcard"
 docker_swag_validation: "dns"
 docker_swag_dnsplugin: "cloudflare"
+docker_swag_email: ""
 docker_swag_only_subdomains: false
 docker_swag_extra_domains: ""
 docker_swag_force: "no"
