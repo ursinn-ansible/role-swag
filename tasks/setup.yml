@@ -132,6 +132,15 @@
     group: "{{docker_swag_pgid}}"
     recurse: yes
 
+- name: Update permissions for dns-config
+  ansible.builtin.file:
+    path: "{{docker_swag_dir}}/config/dns-conf"
+    state: directory
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    mode: 0600
+    recurse: yes
+
 - name: Ensure linuxserver/swag image is pulled
   community.docker.docker_image:
     name: lscr.io/linuxserver/swag
