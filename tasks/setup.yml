@@ -121,7 +121,7 @@
     owner: "{{docker_swag_puid}}"
     group: "{{docker_swag_pgid}}"
     force: "{{docker_swag_force}}"
-    mode: 0600
+    mode: 0644
   register: htpasswd_file
   
 - name: Update ownership
