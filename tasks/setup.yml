@@ -1,8 +1,4 @@
 ---
-- name: Create app network
-  community.docker.docker_network:
-    name: app-network
-
 - name: Create directorys
   ansible.builtin.file:
     path: "{{ item }}"
