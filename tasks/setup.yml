@@ -8,7 +8,6 @@
     mode: 0755
   with_items:
     - "{{docker_swag_dir}}/config/crontabs"
-    - "{{docker_swag_dir}}/config/dns-conf"
     - "{{docker_swag_dir}}/config/etc"
     - "{{docker_swag_dir}}/config/fail2ban"
     - "{{docker_swag_dir}}/config/keys"
