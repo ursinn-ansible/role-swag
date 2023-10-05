@@ -1,102 +1,102 @@
 ---
-- include_tasks: "{{ role_path }}/tasks/setup.yml"
-  when: 
-    app_archisteamfarm_enabled|bool
+- name: Create directorys
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    mode: 0755
+  with_items:
+    - "{{docker_swag_dir}}/config/crontabs"
+    - "{{docker_swag_dir}}/config/etc"
+    - "{{docker_swag_dir}}/config/fail2ban"
+    - "{{docker_swag_dir}}/config/keys"
+    - "{{docker_swag_dir}}/config/log"
+    - "{{docker_swag_dir}}/config/nginx/proxy-confs"
+    - "{{docker_swag_dir}}/config/www"
+
+- name: Copy .htpasswd file
+  ansible.builtin.copy:
+    content: "{{ docker_swag_htpasswd }}"
+    dest: "{{docker_swag_dir}}/config/nginx/.htpasswd"
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    force: "{{docker_swag_force}}"
+    mode: 0644
+  register: htpasswd_file
+
+- name: Update ownership
+  ansible.builtin.file:
+    path: "{{docker_swag_dir}}"
+    state: directory
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    recurse: yes
+
+- name: Update permissions for dns-config
+  ansible.builtin.file:
+    path: "{{docker_swag_dir}}/config/dns-conf"
+    state: directory
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    mode: 0600
+    recurse: yes
+
+- name: Ensure linuxserver/swag image is pulled
+  community.docker.docker_image:
+    name: lscr.io/linuxserver/swag
+    source: pull
+    force_source: yes
+  register: pulled
+
+- name: Remove swag container
+  community.docker.docker_container:
+    name: swag
+    state: absent
+  when:
+    htpasswd_file.changed
     or
-    app_bazarr_enabled|bool
+    pulled.changed
+
+- name: Get infos on swag container
+  community.docker.docker_container_info:
+    name: swag
+  register: result
+
+- name: Create swag container
+  ansible.builtin.shell: |
+    docker run -d \
+    --name=swag \
+    --cap-add=NET_ADMIN \
+    -e PUID={{docker_swag_puid}} \
+    -e PGID={{docker_swag_pgid}} \
+    -e TZ={{docker_swag_tz}} \
+    -e URL="{{docker_swag_url}}" \
+    -e SUBDOMAINS="{{docker_swag_subdomains}}" \
+    -e VALIDATION={{docker_swag_validation}} \
+    -e DNSPLUGIN={{docker_swag_dnsplugin}} \
+    -e EMAIL="{{docker_swag_email}}" \
+    -e ONLY_SUBDOMAINS="{{docker_swag_only_subdomains}}" \
+    -e EXTRA_DOMAINS="{{docker_swag_extra_domains}}" \
+    -v {{docker_swag_dir}}/config:/config:Z \
+    -p 80:80 \
+    -p 443:443 \
+    --network=app-network \
+    --restart unless-stopped \
+    lscr.io/linuxserver/swag
+  when:
+    htpasswd_file.changed
     or
-    app_beets_enabled|bool
+    pulled.changed
     or
-    app_boinc_enabled|bool
+    result.exists == false
+
+- name: Add swag container to bridge network
+  ansible.builtin.shell:
+    cmd: "docker network connect bridge swag"
+  when:
+    htpasswd_file.changed
     or
-    app_calibre_enabled|bool
+    pulled.changed
     or
-    app_couchpotato_enabled|bool
-    or
-    app_deluge_enabled|bool
-    or
-    app_dillinger_enabled|bool
-    or
-    app_dokuwiki_enabled|bool
-    or
-    app_duplicati_enabled|bool
-    or
-    app_emby_enabled|bool
-    or
-    app_embystat_enabled|bool
-    or
-    app_emulatorjs_enabled|bool
-    or
-    app_foldingathome_enabled|bool
-    or
-    app_freshrss_enabled|bool
-    or
-    app_grafana_enabled|bool
-    or
-    app_grocy_enabled|bool
-    or
-    app_headphones_enabled|bool
-    or
-    app_healthchecks_enabled|bool
-    or
-    app_hedgedoc_enabled|bool
-    or
-    app_heimdall_enabled|bool
-    or
-    app_homeassistant_enabled|bool
-    or
-    app_jellyfin_enabled|bool
-    or
-    app_jenkins_enabled|bool
-    or
-    app_keycloak_enabled|bool
-    or
-    app_lazylibrarian_enabled|bool
-    or
-    app_librespeed_enabled|bool
-    or
-    app_lidarr_enabled|bool
-    or
-    app_loki_enabled|bool
-    or
-    app_medusa_enabled|bool
-    or
-    app_mstream_enabled|bool
-    or
-    app_mylar_enabled|bool
-    or
-    app_netboot_enabled|bool
-    or
-    app_nextcloud_enabled|bool
-    or
-    app_nzbget_enabled|bool
-    or
-    app_nzbhydra_enabled|bool
-    or
-    app_ombi_enabled|bool
-    or
-    app_overseerr_enabled|bool
-    or
-    app_owncloud_enabled|bool
-    or
-    app_papermerge_enabled|bool
-    or
-    app_pihole_enabled|bool
-    or
-    app_pihole_unbound_enabled|bool
-    or
-    app_piwigo_enabled|bool
-    or
-    app_plex_enabled|bool
-    or
-    app_prometheus_enabled|bool
-    or
-    app_pydio_enabled|bool
-    or
-    app_smokeping_enabled|bool
-    or
-    app_snipe_it_enabled|bool
-    or
-    app_sonarqube_enabled|bool
-    or
-    app_uptime_kuma_enabled|bool
+    result.exists == false
