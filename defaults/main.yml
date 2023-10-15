@@ -12,3 +12,4 @@ docker_swag_email: ""
 docker_swag_only_subdomains: false
 docker_swag_extra_domains: ""
 docker_swag_force: "no"
+docker_swag_dns_cloudflare_api_token: "0123456789abcdef0123456789abcdef01234567"

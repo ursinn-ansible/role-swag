@@ -22,7 +22,7 @@
     owner: "{{docker_swag_puid}}"
     group: "{{docker_swag_pgid}}"
     force: "{{docker_swag_force}}"
-    mode: 0644
+    mode: 0664
   register: htpasswd_file
 
 - name: Update ownership
@@ -42,6 +42,26 @@
     mode: 0600
     recurse: yes
 
+- name: Copy dns-conf/cloudflare.ini file
+  ansible.builtin.template:
+    src: dns-conf/cloudflare.ini.j2
+    dest: "{{docker_swag_dir}}/config/dns-conf/cloudflare.ini"
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    force: "{{docker_swag_force}}"
+    mode: 0600
+  register: dnsconf_file
+
+- name: Copy nginx/ssl.conf file
+  ansible.builtin.template:
+    src: nginx/ssl.conf.j2
+    dest: "{{docker_swag_dir}}/config/nginx/ssl.conf"
+    owner: "{{docker_swag_puid}}"
+    group: "{{docker_swag_pgid}}"
+    force: "{{docker_swag_force}}"
+    mode: 0664
+  register: sslconf_file
+
 - name: Ensure linuxserver/swag image is pulled
   community.docker.docker_image:
     name: lscr.io/linuxserver/swag
@@ -55,6 +75,10 @@
     state: absent
   when:
     htpasswd_file.changed
+    or
+    dnsconf_file.changed
+    or
+    sslconf_file.changed
     or
     pulled.changed
 
@@ -87,6 +111,10 @@
   when:
     htpasswd_file.changed
     or
+    dnsconf_file.changed
+    or
+    sslconf_file.changed
+    or
     pulled.changed
     or
     result.exists == false
@@ -96,6 +124,10 @@
     cmd: "docker network connect bridge swag"
   when:
     htpasswd_file.changed
+    or
+    dnsconf_file.changed
+    or
+    sslconf_file.changed
     or
     pulled.changed
     or
