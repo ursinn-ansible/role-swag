@@ -1,15 +1,18 @@
 ---
-docker_swag_puid: "docker_files"
-docker_swag_pgid: "docker_files"
-docker_swag_tz: "Europe/Zurich"
-docker_swag_dir: "/opt/docker-swag"
-docker_swag_htpasswd: ""
-docker_swag_url: ""
-docker_swag_subdomains: "wildcard"
-docker_swag_validation: "dns"
-docker_swag_dnsplugin: "cloudflare"
-docker_swag_email: ""
-docker_swag_only_subdomains: false
-docker_swag_extra_domains: ""
-docker_swag_force: "no"
-docker_swag_dns_cloudflare_api_token: "0123456789abcdef0123456789abcdef01234567"
+docker_swag:
+  puid: "docker_files"
+  pgid: "docker_files"
+  tz: "Europe/Zurich"
+  dir: "/opt/docker-swag"
+  htpasswd: ""
+  url: ""
+  subdomains: "wildcard"
+  validation: "dns"
+  dnsplugin: "cloudflare"
+  email: ""
+  only_subdomains: false
+  extra_domains: ""
+  force: "no"
+  dns:
+    cloudflare:
+      api_token: "0123456789abcdef0123456789abcdef01234567"
