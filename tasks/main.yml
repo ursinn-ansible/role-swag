@@ -62,7 +62,7 @@
     mode: 0664
   register: sslconf_file
 
-- name: Copy proxy-confs/ssl.conf file
+- name: Copy proxy-confs files
   ansible.builtin.template:
     src: proxy-confs/{{ item }}.conf.j2
     dest: "{{ docker_swag.dir }}/config/nginx/proxy-confs/{{ item }}.conf"
