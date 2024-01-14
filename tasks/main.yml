@@ -78,6 +78,7 @@
     - promtail.subdomain
 #    - smokeping.subdomain
 #    - uptime-kuma.subdomain
+  register: proxy_configs
 
 - name: Ensure linuxserver/swag image is pulled
   community.docker.docker_image:
@@ -96,6 +97,8 @@
     dnsconf_file.changed
     or
     sslconf_file.changed
+    or
+    proxy_configs.changed
     or
     pulled.changed
 
@@ -132,6 +135,8 @@
     or
     sslconf_file.changed
     or
+    proxy_configs.changed
+    or
     pulled.changed
     or
     result.exists == false
@@ -145,6 +150,8 @@
     dnsconf_file.changed
     or
     sslconf_file.changed
+    or
+    proxy_configs.changed
     or
     pulled.changed
     or
