@@ -62,6 +62,23 @@
     mode: 0664
   register: sslconf_file
 
+- name: Copy proxy-confs/ssl.conf file
+  ansible.builtin.template:
+    src: proxy-confs/{{ item }}.conf.j2
+    dest: "{{ docker_swag.dir }}/config/nginx/proxy-confs/{{ item }}.conf"
+    owner: "{{ docker_swag.puid }}"
+    group: "{{ docker_swag.pgid }}"
+    force: "{{ docker_swag.force }}"
+    mode: 0664
+  with_items:
+#    - grafana.subdomain
+#    - loki.subdomain
+#    - pihole.subdomain
+#    - plex.subdomain
+    - promtail.subdomain
+#    - smokeping.subdomain
+#    - uptime-kuma.subdomain
+
 - name: Ensure linuxserver/swag image is pulled
   community.docker.docker_image:
     name: lscr.io/linuxserver/swag
