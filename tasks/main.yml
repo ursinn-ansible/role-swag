@@ -3,93 +3,86 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
     mode: 0755
   with_items:
-    - "{{ docker_swag.dir }}/config/crontabs"
-    - "{{ docker_swag.dir }}/config/etc"
-    - "{{ docker_swag.dir }}/config/fail2ban"
-    - "{{ docker_swag.dir }}/config/keys"
-    - "{{ docker_swag.dir }}/config/log"
-    - "{{ docker_swag.dir }}/config/nginx/proxy-confs"
-    - "{{ docker_swag.dir }}/config/www"
+    - "{{ docker_swag_dir }}/config/crontabs"
+    - "{{ docker_swag_dir }}/config/etc"
+    - "{{ docker_swag_dir }}/config/fail2ban"
+    - "{{ docker_swag_dir }}/config/keys"
+    - "{{ docker_swag_dir }}/config/log"
+    - "{{ docker_swag_dir }}/config/nginx/proxy-confs"
+    - "{{ docker_swag_dir }}/config/www"
 
 - name: Copy .htpasswd file
   ansible.builtin.copy:
-    content: "{{ docker_swag.htpasswd }}"
-    dest: "{{ docker_swag.dir }}/config/nginx/.htpasswd"
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
-    force: "{{ docker_swag.force }}"
+    content: "{{ docker_swag_htpasswd }}"
+    dest: "{{ docker_swag_dir }}/config/nginx/.htpasswd"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
+    force: "{{ docker_swag_force }}"
     mode: 0664
   register: htpasswd_file
 
 - name: Update ownership
   ansible.builtin.file:
-    path: "{{ docker_swag.dir }}"
+    path: "{{ docker_swag_dir }}"
     state: directory
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
     recurse: yes
 
 - name: Update permissions for dns-config
   ansible.builtin.file:
-    path: "{{ docker_swag.dir }}/config/dns-conf"
+    path: "{{ docker_swag_dir }}/config/dns-conf"
     state: directory
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
     mode: 0600
     recurse: yes
 
 - name: Copy dns-conf/cloudflare.ini file
   ansible.builtin.template:
     src: dns-conf/cloudflare.ini.j2
-    dest: "{{ docker_swag.dir }}/config/dns-conf/cloudflare.ini"
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
-    force: "{{ docker_swag.force }}"
+    dest: "{{ docker_swag_dir }}/config/dns-conf/cloudflare.ini"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
+    force: "{{ docker_swag_force }}"
     mode: 0600
   register: dnsconf_file
 
 - name: Copy nginx/ssl.conf file
   ansible.builtin.template:
     src: nginx/ssl.conf.j2
-    dest: "{{ docker_swag.dir }}/config/nginx/ssl.conf"
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
-    force: "{{ docker_swag.force }}"
+    dest: "{{ docker_swag_dir }}/config/nginx/ssl.conf"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
+    force: "{{ docker_swag_force }}"
     mode: 0664
   register: sslconf_file
 
 - name: Copy proxy-confs files
   ansible.builtin.template:
     src: proxy-confs/{{ item }}.conf.j2
-    dest: "{{ docker_swag.dir }}/config/nginx/proxy-confs/{{ item }}.conf"
-    owner: "{{ docker_swag.puid }}"
-    group: "{{ docker_swag.pgid }}"
-    force: "{{ docker_swag.force }}"
+    dest: "{{ docker_swag_dir }}/config/nginx/proxy-confs/{{ item }}.conf"
+    owner: "{{ docker_swag_puid }}"
+    group: "{{ docker_swag_pgid }}"
+    force: "{{ docker_swag_force }}"
     mode: 0664
-  with_items:
-#    - grafana.subdomain
-#    - loki.subdomain
-#    - pihole.subdomain
-#    - plex.subdomain
-    - promtail.subdomain
-#    - smokeping.subdomain
-#    - uptime-kuma.subdomain
+  with_items: "{{ docker_swag_proxy_confs }}"
   register: proxy_configs
 
 - name: Ensure linuxserver/swag image is pulled
   community.docker.docker_image:
-    name: lscr.io/linuxserver/swag
+    name: "{{ docker_swag_docker_image }}"
     source: pull
     force_source: yes
   register: pulled
 
 - name: Remove swag container
   community.docker.docker_container:
-    name: swag
+    name: "{{ docker_swag_docker_container }}"
     state: absent
   when:
     htpasswd_file.changed
@@ -104,30 +97,30 @@
 
 - name: Get infos on swag container
   community.docker.docker_container_info:
-    name: swag
+    name: "{{ docker_swag_docker_container }}"
   register: result
 
 - name: Create swag container
   ansible.builtin.shell: |
     docker run -d \
-    --name=swag \
+    --name={{ docker_swag_docker_container }} \
     --cap-add=NET_ADMIN \
-    -e PUID={{ docker_swag.puid }} \
-    -e PGID={{ docker_swag.pgid }} \
-    -e TZ={{ docker_swag.tz }} \
-    -e URL="{{ docker_swag.url }}" \
-    -e SUBDOMAINS="{{ docker_swag.subdomains }}" \
-    -e VALIDATION={{ docker_swag.validation }} \
-    -e DNSPLUGIN={{ docker_swag.dnsplugin }} \
-    -e EMAIL="{{ docker_swag.email }}" \
-    -e ONLY_SUBDOMAINS="{{ docker_swag.only_subdomains }}" \
-    -e EXTRA_DOMAINS="{{ docker_swag.extra_domains }}" \
-    -v {{ docker_swag.dir }}/config:/config:Z \
+    -e PUID={{ docker_swag_puid }} \
+    -e PGID={{ docker_swag_pgid }} \
+    -e TZ={{ docker_swag_tz }} \
+    -e URL="{{ docker_swag_url }}" \
+    -e SUBDOMAINS="{{ docker_swag_subdomains }}" \
+    -e VALIDATION={{ docker_swag_validation }} \
+    -e DNSPLUGIN={{ docker_swag_dnsplugin }} \
+    -e EMAIL="{{ docker_swag_email }}" \
+    -e ONLY_SUBDOMAINS="{{ docker_swag_only_subdomains }}" \
+    -e EXTRA_DOMAINS="{{ docker_swag_extra_domains }}" \
+    -v {{ docker_swag_dir }}/config:/config:Z \
     -p 80:80 \
     -p 443:443 \
-    --network=app-network \
+    --network={{ docker_swag_docker_network }} \
     --restart unless-stopped \
-    lscr.io/linuxserver/swag
+    {{ docker_swag_docker_image }}
   when:
     htpasswd_file.changed
     or
@@ -143,7 +136,7 @@
 
 - name: Add swag container to bridge network
   ansible.builtin.shell:
-    cmd: "docker network connect bridge swag"
+    cmd: "docker network connect bridge {{ docker_swag_docker_container }}"
   when:
     htpasswd_file.changed
     or

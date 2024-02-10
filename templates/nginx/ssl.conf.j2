@@ -39,5 +39,5 @@ ssl_trusted_certificate /config/keys/cert.crt;
 #add_header X-XSS-Protection "1; mode=block" always;
 
 {% if docker_swag.pop is defined %}
-add_header x-pop "{{ docker_swag.pop }}";
+add_header x-pop "{{ docker_swag_pop }}";
 {% endif %}
