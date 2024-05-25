@@ -1,4 +1,10 @@
 ---
+- name: set vars
+  set_fact:
+    docker_image: '{{ docker_swag_docker_image }}'
+    docker_container: '{{ docker_swag_docker_container }}-nginx'
+    docker_network: '{{ docker_swag_docker_network }}'
+
 - name: Create directorys
   ansible.builtin.file:
     path: "{{ item }}"
@@ -73,16 +79,16 @@
   with_items: "{{ docker_swag_proxy_confs }}"
   register: proxy_configs
 
-- name: Ensure linuxserver/swag image is pulled
+- name: Ensure image is pulled
   community.docker.docker_image:
-    name: "{{ docker_swag_docker_image }}"
+    name: "{{ docker_image }}"
     source: pull
     force_source: yes
   register: pulled
 
-- name: Remove swag container
+- name: Remove container
   community.docker.docker_container:
-    name: "{{ docker_swag_docker_container }}"
+    name: "{{ docker_container }}"
     state: absent
   when:
     htpasswd_file.changed
@@ -95,15 +101,15 @@
     or
     pulled.changed
 
-- name: Get infos on swag container
+- name: Get infos on container
   community.docker.docker_container_info:
-    name: "{{ docker_swag_docker_container }}"
+    name: "{{ docker_container }}"
   register: result
 
 - name: Create swag container
   ansible.builtin.shell: |
     docker run -d \
-    --name={{ docker_swag_docker_container }} \
+    --name={{ docker_container }} \
     --cap-add=NET_ADMIN \
     -e PUID={{ docker_swag_puid }} \
     -e PGID={{ docker_swag_pgid }} \
@@ -118,9 +124,9 @@
     -v {{ docker_swag_dir }}/config:/config:Z \
     -p 80:80 \
     -p 443:443 \
-    --network={{ docker_swag_docker_network }} \
+    --network={{ docker_network }} \
     --restart unless-stopped \
-    {{ docker_swag_docker_image }}
+    {{ docker_image }}
   when:
     htpasswd_file.changed
     or
@@ -136,7 +142,7 @@
 
 - name: Add swag container to bridge network
   ansible.builtin.shell:
-    cmd: "docker network connect bridge {{ docker_swag_docker_container }}"
+    cmd: "docker network connect bridge {{ docker_container }}"
   when:
     htpasswd_file.changed
     or
