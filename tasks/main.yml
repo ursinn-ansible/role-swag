@@ -2,7 +2,7 @@
 - name: set vars
   set_fact:
     docker_image: '{{ docker_swag_docker_image }}'
-    docker_container: '{{ docker_swag_docker_container }}-nginx'
+    docker_container: '{{ docker_swag_docker_container }}'
     docker_network: '{{ docker_swag_docker_network }}'
 
 - name: Create directorys
