@@ -1,82 +1,88 @@
 ---
 - name: set vars
   set_fact:
-    docker_image: '{{ docker_swag_docker_image }}'
-    docker_container: '{{ docker_swag_docker_container }}'
-    docker_network: '{{ docker_swag_docker_network }}'
+    docker_image: '{{ role_swag_image }}'
+    docker_container: '{{ role_swag_container }}'
+    docker_puid: '{{ role_swag_puid }}'
+    docker_pgid: '{{ role_swag_pgid }}'
+    docker_tz: '{{ role_swag_tz }}'
+    docker_dir: '{{ role_swag_dir }}/config'
+    docker_network: '{{ role_swag_network }}'
+    swag_nginx_dir: '{{ docker_dir }}/nginx'
+    swag_dns_config_dir: '{{ docker_dir }}/dns-conf'
 
-- name: Create directorys
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
-    mode: 0755
-  with_items:
-    - "{{ docker_swag_dir }}/config/crontabs"
-    - "{{ docker_swag_dir }}/config/etc"
-    - "{{ docker_swag_dir }}/config/fail2ban"
-    - "{{ docker_swag_dir }}/config/keys"
-    - "{{ docker_swag_dir }}/config/log"
-    - "{{ docker_swag_dir }}/config/nginx/proxy-confs"
-    - "{{ docker_swag_dir }}/config/www"
+#- name: Create directorys
+#  ansible.builtin.file:
+#    path: "{{ item }}"
+#    state: directory
+#    owner: "{{ docker_puid }}"
+#    group: "{{ docker_pgid }}"
+#    mode: 0755
+#  with_items:
+#    - "{{ docker_dir }}/crontabs"
+#    - "{{ docker_dir }}/etc"
+#    - "{{ docker_dir }}/fail2ban"
+#    - "{{ docker_dir }}/keys"
+#    - "{{ docker_dir }}/log"
+#    - "{{ swag_nginx_dir }}/proxy-confs"
+#    - "{{ docker_dir }}/www"
 
 - name: Copy .htpasswd file
   ansible.builtin.copy:
-    content: "{{ docker_swag_htpasswd }}"
-    dest: "{{ docker_swag_dir }}/config/nginx/.htpasswd"
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
-    force: "{{ docker_swag_force }}"
+    content: "{{ role_swag_htpasswd }}"
+    dest: "{{ swag_nginx_dir }}/.htpasswd"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
+    force: "{{ role_swag_force }}"
     mode: 0664
   register: htpasswd_file
 
 - name: Update ownership
   ansible.builtin.file:
-    path: "{{ docker_swag_dir }}"
+    path: "{{ docker_dir }}"
     state: directory
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
     recurse: yes
 
 - name: Update permissions for dns-config
   ansible.builtin.file:
-    path: "{{ docker_swag_dir }}/config/dns-conf"
+    path: "{{ swag_dns_config_dir }}"
     state: directory
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
     mode: 0600
     recurse: yes
 
 - name: Copy dns-conf/cloudflare.ini file
   ansible.builtin.template:
     src: dns-conf/cloudflare.ini.j2
-    dest: "{{ docker_swag_dir }}/config/dns-conf/cloudflare.ini"
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
-    force: "{{ docker_swag_force }}"
+    dest: "{{ swag_dns_config_dir }}/cloudflare.ini"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
+    force: "{{ role_swag_force }}"
     mode: 0600
   register: dnsconf_file
 
 - name: Copy nginx/ssl.conf file
   ansible.builtin.template:
     src: nginx/ssl.conf.j2
-    dest: "{{ docker_swag_dir }}/config/nginx/ssl.conf"
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
-    force: "{{ docker_swag_force }}"
+    dest: "{{ swag_nginx_dir }}/ssl.conf"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
+    force: "{{ role_swag_force }}"
     mode: 0664
   register: sslconf_file
 
 - name: Copy proxy-confs files
   ansible.builtin.template:
     src: proxy-confs/{{ item }}.conf.j2
-    dest: "{{ docker_swag_dir }}/config/nginx/proxy-confs/{{ item }}.conf"
-    owner: "{{ docker_swag_puid }}"
-    group: "{{ docker_swag_pgid }}"
-    force: "{{ docker_swag_force }}"
+    dest: "{{ swag_nginx_dir }}/proxy-confs/{{ item }}.conf"
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
+    force: "{{ role_swag_force }}"
     mode: 0664
-  with_items: "{{ docker_swag_proxy_confs }}"
+  with_items: "{{ role_swag_proxy_confs }}"
   register: proxy_configs
 
 - name: Ensure image is pulled
@@ -117,17 +123,17 @@
     docker run -d \
     --name={{ docker_container }} \
     --cap-add=NET_ADMIN \
-    -e PUID={{ docker_swag_puid }} \
-    -e PGID={{ docker_swag_pgid }} \
-    -e TZ={{ docker_swag_tz }} \
-    -e URL="{{ docker_swag_url }}" \
-    -e SUBDOMAINS="{{ docker_swag_subdomains }}" \
-    -e VALIDATION={{ docker_swag_validation }} \
-    -e DNSPLUGIN={{ docker_swag_dnsplugin }} \
-    -e EMAIL="{{ docker_swag_email }}" \
-    -e ONLY_SUBDOMAINS="{{ docker_swag_only_subdomains }}" \
-    -e EXTRA_DOMAINS="{{ docker_swag_extra_domains }}" \
-    -v {{ docker_swag_dir }}/config:/config:Z \
+    -e PUID={{ docker_puid }} \
+    -e PGID={{ docker_pgid }} \
+    -e TZ={{ docker_tz }} \
+    -e URL="{{ role_swag_url }}" \
+    -e SUBDOMAINS="{{ role_swag_subdomains }}" \
+    -e VALIDATION={{ role_swag_validation }} \
+    -e DNSPLUGIN={{ role_swag_dnsplugin }} \
+    -e EMAIL="{{ role_swag_email }}" \
+    -e ONLY_SUBDOMAINS="{{ role_swag_only_subdomains }}" \
+    -e EXTRA_DOMAINS="{{ role_swag_extra_domains }}" \
+    -v {{ docker_dir }}:/config:Z \
     -p 80:80 \
     -p 443:443 \
     --network={{ docker_network }} \

@@ -1,21 +1,21 @@
 ---
-docker_swag_docker_image: lscr.io/linuxserver/swag
-docker_swag_docker_container: swag
-docker_swag_docker_network: app-network
+role_swag_image: 'lscr.io/linuxserver/swag'
+role_swag_container: 'swag'
+role_swag_puid: '1000'
+role_swag_pgid: '1000'
+role_swag_tz: 'Europe/Zurich'
+role_swag_dir: '/opt/docker-swag'
+role_swag_network: 'app-network'
 
-docker_swag_dns_cloudflare_api_token: "0123456789abcdef0123456789abcdef01234567"
-docker_swag_puid: "docker_files"
-docker_swag_pgid: "docker_files"
-docker_swag_tz: "Europe/Zurich"
-docker_swag_dir: "/opt/docker-swag"
-docker_swag_htpasswd: ""
-docker_swag_url: ""
-docker_swag_subdomains: "wildcard"
-docker_swag_validation: "dns"
-docker_swag_dnsplugin: "cloudflare"
-docker_swag_email: ""
-docker_swag_only_subdomains: false
-docker_swag_extra_domains: ""
-docker_swag_force: "no"
-docker_swag_proxy_confs:
+role_swag_htpasswd: ""
+role_swag_force: "no"
+role_swag_url: ""
+role_swag_subdomains: "wildcard"
+role_swag_validation: "dns"
+role_swag_dnsplugin: "cloudflare"
+role_swag_email: ""
+role_swag_only_subdomains: false
+role_swag_extra_domains: ""
+role_swag_dns_cloudflare_api_token: "0123456789abcdef0123456789abcdef01234567"
+role_swag_proxy_confs:
   - promtail.subdomain
