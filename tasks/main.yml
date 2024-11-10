@@ -11,21 +11,15 @@
     swag_nginx_dir: '{{ role_swag_dir }}/config/nginx'
     swag_dns_config_dir: '{{ role_swag_dir }}/config/dns-conf'
 
-#- name: Create directorys
-#  ansible.builtin.file:
-#    path: "{{ item }}"
-#    state: directory
-#    owner: "{{ docker_puid }}"
-#    group: "{{ docker_pgid }}"
-#    mode: 0755
-#  with_items:
-#    - "{{ docker_dir }}/crontabs"
-#    - "{{ docker_dir }}/etc"
-#    - "{{ docker_dir }}/fail2ban"
-#    - "{{ docker_dir }}/keys"
-#    - "{{ docker_dir }}/log"
-#    - "{{ swag_nginx_dir }}/proxy-confs"
-#    - "{{ docker_dir }}/www"
+- name: Create directorys
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ docker_puid }}"
+    group: "{{ docker_pgid }}"
+    mode: 0755
+  with_items:
+    - "{{ swag_nginx_dir }}/proxy-confs"
 
 - name: Copy .htpasswd file
   ansible.builtin.copy:
