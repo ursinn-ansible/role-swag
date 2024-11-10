@@ -8,8 +8,8 @@
     docker_tz: '{{ role_swag_tz }}'
     docker_dir: '{{ role_swag_dir }}/config'
     docker_network: '{{ role_swag_network }}'
-    swag_nginx_dir: '{{ docker_dir }}/nginx'
-    swag_dns_config_dir: '{{ docker_dir }}/dns-conf'
+    swag_nginx_dir: '{{ role_swag_dir }}/config/nginx'
+    swag_dns_config_dir: '{{ role_swag_dir }}/config/dns-conf'
 
 #- name: Create directorys
 #  ansible.builtin.file:
