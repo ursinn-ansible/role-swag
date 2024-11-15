@@ -1,5 +1,5 @@
 ---
-role_swag_image: 'lscr.io/linuxserver/swag'
+role_swag_image: 'lscr.io/linuxserver/swag:3.0.1'
 role_swag_container: 'swag'
 role_swag_puid: '1000'
 role_swag_pgid: '1000'
