@@ -26,8 +26,8 @@ server {
 
     location / {
         # enable the next two lines for http auth
-        #auth_basic "Restricted";
-        #auth_basic_user_file /config/nginx/.htpasswd;
+        auth_basic "Restricted";
+        auth_basic_user_file /config/nginx/.htpasswd;
 
         # enable for ldap auth (requires ldap-server.conf in the server block)
         #include /config/nginx/ldap-location.conf;
@@ -59,8 +59,8 @@ server {
 
     location ~ (/prometheus)?/-/(healthy|ready|reload|quit) {
         # enable the next two lines for http auth
-        #auth_basic "Restricted";
-        #auth_basic_user_file /config/nginx/.htpasswd;
+        auth_basic "Restricted";
+        auth_basic_user_file /config/nginx/.htpasswd;
 
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;
