@@ -1,15 +1,15 @@
-## Version 2024/07/16
-## Modified 2024/11/10
+## Version 2025/07/18
+## Modified 2025/11/23
 # make sure that your authentik container is named authentik-server
 # make sure that your dns has a cname set for authentik
 
 server {
     listen 443 ssl;
+    listen 443 quic;
     listen [::]:443 ssl;
+    listen [::]:443 quic;
 
     server_name authentik.*;
-
-    add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
 
     include /config/nginx/ssl.conf;
 

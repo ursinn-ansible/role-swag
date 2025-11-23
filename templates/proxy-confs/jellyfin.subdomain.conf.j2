@@ -1,5 +1,5 @@
-## Version 2024/08/22
-## Modified 2024/11/10
+## Version 2025/07/18
+## Modified 2025/11/23
 # make sure that your jellyfin container is named jellyfin
 # make sure that your dns has a cname set for jellyfin
 # if jellyfin is running in bridge mode and the container is named "jellyfin", the below config should work as is
@@ -9,11 +9,11 @@
 
 server {
     listen 443 ssl;
+    listen 443 quic;
     listen [::]:443 ssl;
+    listen [::]:443 quic;
 
     server_name jellyfin.*;
-
-    add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
 
     include /config/nginx/ssl.conf;
 
@@ -25,6 +25,9 @@ server {
         set $upstream_app jellyfin;
         set $upstream_port 8096;
         set $upstream_proto http;
+        if ($http_user_agent ~ Web0S) {
+            add_header Access-Control-Allow-Origin "luna://com.webos.service.config" always;
+        }
         proxy_pass $upstream_proto://$upstream_app:$upstream_port;
 
         proxy_set_header Range $http_range;
@@ -37,6 +40,9 @@ server {
         set $upstream_app jellyfin;
         set $upstream_port 8096;
         set $upstream_proto http;
+        if ($http_user_agent ~ Web0S) {
+            add_header Access-Control-Allow-Origin "luna://com.webos.service.config" always;
+        }
         proxy_pass $upstream_proto://$upstream_app:$upstream_port;
 
     }

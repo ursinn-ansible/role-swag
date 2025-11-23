@@ -1,16 +1,15 @@
 ## Version 2025/07/18
+## Modified 2025/11/23
 # make sure that your tdarr container is named tdarr
 # make sure that your dns has a cname set for tdarr
 
 server {
     listen 443 ssl;
-#    listen 443 quic;
+    listen 443 quic;
     listen [::]:443 ssl;
-#    listen [::]:443 quic;
+    listen [::]:443 quic;
 
     server_name tdarr.*;
-
-    add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
 
     include /config/nginx/ssl.conf;
 
