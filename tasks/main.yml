@@ -124,12 +124,15 @@
     -e SUBDOMAINS="{{ role_swag_subdomains }}" \
     -e VALIDATION={{ role_swag_validation }} \
     -e DNSPLUGIN={{ role_swag_dnsplugin }} \
+    -e CERTPROVIDER={{ role_swag_certprovider }} \
+    -e PROPAGATION={{ role_swag_propagation }} \
     -e EMAIL="{{ role_swag_email }}" \
     -e ONLY_SUBDOMAINS="{{ role_swag_only_subdomains }}" \
     -e EXTRA_DOMAINS="{{ role_swag_extra_domains }}" \
     -v {{ docker_dir }}:/config:Z \
     -p 80:80 \
     -p 443:443 \
+    -p 443:443/udp \
     --network={{ docker_network }} \
     --restart unless-stopped \
     {{ docker_image }}

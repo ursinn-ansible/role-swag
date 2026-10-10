@@ -1,5 +1,5 @@
 ## Version 2025/07/18
-## Modified 2025/11/23
+## Modified 2025/12/05
 # make sure that your jellyfin container is named jellyfin
 # make sure that your dns has a cname set for jellyfin
 # if jellyfin is running in bridge mode and the container is named "jellyfin", the below config should work as is
@@ -50,12 +50,9 @@ server {
     # Restrict access to /metrics
     # https://jellyfin.org/docs/general/networking/monitoring/#prometheus-metrics
     location /metrics {
-        allow 192.168.0.0/16;
-        allow 10.0.0.0/8;
-        allow 172.16.0.0/12;
-        allow 127.0.0.0/8;
-
-        deny all;
+        # enable the next two lines for http auth
+        auth_basic "Restricted";
+        auth_basic_user_file /config/nginx/.htpasswd;
 
         include /config/nginx/proxy.conf;
         include /config/nginx/resolver.conf;
